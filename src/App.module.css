@@ -123,6 +123,7 @@ li {
 	margin-bottom: 3px;
 	cursor: pointer;
 	transition: 0.2s;
+	max-width: 500px;
 }
 
 li:hover {

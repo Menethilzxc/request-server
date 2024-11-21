@@ -1,31 +1,31 @@
 import { useEffect, useState } from 'react';
+import { ref, onValue } from 'firebase/database';
+import { db } from '../firebase';
 
 export const useRequestGetTodo = (
 	refreshTodoFlag,
-	sortByAlphabet,
 	searchTodo,
+	sortByAlphabet,
 	sortTodos,
 	filterTodos,
 ) => {
-	const [loader, setLoader] = useState(false);
-	const [todos, setTodos] = useState([]);
-	const [sortedTodos, setSortedTodos] = useState([]);
+	const [loader, setLoader] = useState(true);
+	const [sortedTodos, setSortedTodos] = useState({});
 
 	useEffect(() => {
-		setLoader(true);
+		const requestDbRef = ref(db, 'todos');
 
-		fetch('http://localhost:3005/todos')
-			.then((loadedData) => loadedData.json())
-			.then((loadedTodos) => {
-				setTodos(loadedTodos);
-				let tempSortedTodos = sortByAlphabet
-					? sortTodos(loadedTodos)
-					: loadedTodos;
-				setSortedTodos(tempSortedTodos);
-				filterTodos(searchTodo, tempSortedTodos);
-			})
-			.finally(() => setLoader(false));
-	}, [refreshTodoFlag, sortByAlphabet, searchTodo]);
+		return onValue(requestDbRef, (snapshot) => {
+			const loadedTodos = snapshot.val() || {};
+			let tempSortedTodos = sortByAlphabet ? sortTodos(loadedTodos) : loadedTodos;
+
+			filterTodos(searchTodo, tempSortedTodos);
+
+			setSortedTodos(tempSortedTodos);
+
+			setLoader(false);
+		});
+	}, []);
 
 	return { loader, sortedTodos };
 };

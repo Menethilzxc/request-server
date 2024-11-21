@@ -10,7 +10,7 @@ import styles from './App.module.css';
 function App() {
 	const [sortByAlphabet, setSortByAlphabet] = useState(false);
 	const [searchTodo, setSearchTodo] = useState('');
-	const [sortedTodos, setSortedTodos] = useState([]);
+	const [sortedTodos, setSortedTodos] = useState({});
 	const [todoText, setTodoText] = useState('');
 	const [selectedTodoId, setSelectedTodoId] = useState(null);
 	const [refreshTodoFlag, setRefreshTodoFlag] = useState(false);
@@ -21,6 +21,13 @@ function App() {
 	const onChange = ({ target }) => {
 		setTodoText(target.value);
 	};
+
+	// const sortTodos = (todosObj) => {
+	// const sortedTodosObj = Object.entries(todosObj).sort((a, b) =>
+	// a[1].title.localeCompare(b[1].title),
+	// );
+	// return Object.fromEntries(sortedTodosObj);
+	// };
 
 	const sortTodos = (todosArray) =>
 		[...todosArray].sort((a, b) => a.title.localeCompare(b.title));
@@ -45,13 +52,11 @@ function App() {
 	};
 
 	const { loader } = useRequestGetTodo(
-		refreshTodoFlag,
-		sortByAlphabet,
-		searchTodo,
-		sortTodos,
 		filterTodos,
+		sortTodos,
 		sortedTodos,
 		setSortedTodos,
+		toggleSortByAlphabet,
 	);
 
 	const { requestAddTodo, isCreating } = useRequestAddTodo(
@@ -108,7 +113,7 @@ function App() {
 				</div>
 				<div className={styles.sortButton}>
 					<button onClick={toggleSortByAlphabet}>
-						{sortByAlphabet ? 'Отключить сортировку' : 'Включить сортировку'}
+						{sortByAlphabet ? 'Включить сортировку' : 'Отключить сортировку'}
 					</button>
 				</div>
 
@@ -123,17 +128,18 @@ function App() {
 					{loader ? (
 						<div className={styles.loader}></div>
 					) : (
-						sortedTodos.map((todo, index) => (
+						Object.entries(sortedTodos).map(([id, { title }], index) => (
 							<li
-								key={todo.id}
-								onClick={() => selectTodo(todo.id)}
+								key={id}
+								onClick={() => selectTodo(id)}
 								style={{
-									background: selectedTodoId === todo.id ? 'white' : '',
-									color: selectedTodoId === todo.id ? 'black' : '',
+									background: selectedTodoId === id ? 'white' : '',
+									color: selectedTodoId === id ? 'black' : '',
 								}}
 							>
 								<span>{index + 1}.</span>
-								{todo.title}
+
+								{title}
 							</li>
 						))
 					)}

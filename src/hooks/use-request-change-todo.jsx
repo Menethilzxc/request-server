@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { ref, set } from 'firebase/database';
+import { db } from '../firebase';
 
 export const useRequestChangeTodo = (
 	setErrorParagraph,
@@ -23,16 +25,12 @@ export const useRequestChangeTodo = (
 
 		setIsUpdating(true);
 
-		fetch(`http://localhost:3005/todos/${selectedTodoId}`, {
-			method: 'PUT',
-			headers: { 'Content-Type': 'application/json;charset=utf-8' },
-			body: JSON.stringify({
-				title: todoText,
-			}),
+		const changeDbRef = ref(db, `todos/${selectedTodoId}`);
+
+		set(changeDbRef, {
+			title: todoText,
 		})
-			.then((rawResponse) => rawResponse.json())
 			.then(() => {
-				refreshTodo();
 				setTodoText('');
 				setErrorParagraph();
 				setSelectedTodoId(null);

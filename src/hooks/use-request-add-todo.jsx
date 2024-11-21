@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { ref, push } from 'firebase/database';
+import { db } from '../firebase';
 
 export const useRequestAddTodo = (
 	setErrorParagraph,
@@ -16,14 +18,11 @@ export const useRequestAddTodo = (
 
 		setIsCreating(true);
 
-		fetch('http://localhost:3005/todos', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json;charset=utf-8' },
-			body: JSON.stringify({
-				title: todoText,
-			}),
+		const todosDbRef = ref(db, 'todos');
+
+		push(todosDbRef, {
+			title: todoText,
 		})
-			.then((rawResponse) => rawResponse.json())
 			.then(() => {
 				refreshTodo();
 				setTodoText('');
