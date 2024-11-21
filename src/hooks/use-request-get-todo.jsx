@@ -12,6 +12,7 @@ export const useRequestGetTodo = (
 	const [loader, setLoader] = useState(true);
 	const [sortedTodos, setSortedTodos] = useState({});
 
+	// хук для запроса
 	useEffect(() => {
 		const requestDbRef = ref(db, 'todos');
 
